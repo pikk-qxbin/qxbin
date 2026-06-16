@@ -4,74 +4,84 @@ import matplotlib.pyplot as plt
 
 
 @njit(parallel=True, fastmath=True)
-def evolve_qxbin_chains(states: np.ndarray, biases: np.ndarray, powers: np.ndarray) -> np.ndarray:
-    """Parallel evolution of multiple QxBin probability chains (server/cloud scale)."""
-    n = states.shape[0]
-    for i in prange(n):
+def _evolve_batch(states, biases, ns, ms):
+    """Numba-accelerated parallel evolution of QxBin probability matrices."""
+    n_cubits = states.shape[0]
+    for i in prange(n_cubits):
         b = biases[i]
-        pn, pm = powers[i, 0], powers[i, 1]
-        frac = b ** pn
-        tail = (1.0 - b) ** pm
+        nn = ns[i]
+        mm = ms[i]
         
-        # Simple matrix evolution for each cubit chain
-        new_state = (states[i] * frac + (1.0 - states[i]) * tail) * 0.5
-        new_state = new_state / new_state.sum()
-        states[i] = new_state
+        frac = b ** nn
+        tail = (1.0 - b) ** mm
+        
+        # Element-wise blend using fractional exponents
+        blended = (states[i] * frac + (1.0 - states[i]) * tail) * 0.5
+        
+        # Stable normalize
+        total = blended.sum()
+        if total > 1e-12:
+            states[i] = blended / total
+        else:
+            states[i] = np.ones_like(blended) / blended.size
     return states
 
 
 class QxBinCloud:
-    """QxBin Logic on Cloud/Server: Scalable Ensemble Simulator
-    
-    Batch processing of many cubit chains for optimization,
-    Monte Carlo, or large-scale probabilistic workloads.
-    Numba-accelerated for speed. Easy to extend to GPU.
     """
-    def __init__(self, num_cubits: int = 20, grid_size: int = 8):
+    QxBin Cloud / Server Simulator - Scalable Ensemble of Cubit Chains
+    
+    Runs many Binary Probability Matrices in parallel.
+    Uses the same fractional exponent (n, m) logic as the edge version.
+    Ideal for batch simulation, optimization, Monte Carlo-style workloads.
+    """
+    def __init__(self, num_cubits: int = 24, grid_size: int = 7):
         self.num_cubits = num_cubits
         self.grid_size = grid_size
         self.states = np.random.rand(num_cubits, grid_size, grid_size).astype(np.float64)
-        # Normalize each matrix
+        # Normalize all
         for i in range(num_cubits):
-            self.states[i] /= self.states[i].sum()
+            s = self.states[i].sum()
+            if s > 0:
+                self.states[i] /= s
 
-    def evolve(self, biases: np.ndarray = None):
-        """Evolve all chains in parallel."""
+    def evolve_chains(self, biases=None):
+        """Evolve all cubit chains in parallel using QxBin fractional logic."""
         if biases is None:
-            biases = np.random.uniform(0.45, 0.85, self.num_cubits)
-        powers = np.random.randint(1, 5, size=(self.num_cubits, 2)).astype(np.int32)
+            biases = np.random.uniform(0.5, 0.85, self.num_cubits)
+        ns = np.random.randint(1, 5, self.num_cubits)
+        ms = np.random.randint(1, 5, self.num_cubits)
         
-        self.states = evolve_qxbin_chains(self.states, biases, powers)
-        return self.states.mean(axis=0)  # Aggregate view
+        self.states = _evolve_batch(self.states, biases, ns, ms)
+        return self.states.mean(0)  # Return aggregate for convenience
 
-    def probabilistic_optimize(self, target: float = 0.75, max_iter: int = 100):
-        """Simple feedback loop to tune ensemble toward target probability."""
-        for it in range(max_iter):
-            agg = self.evolve()
-            current_mean = agg.mean()
-            if abs(current_mean - target) < 0.005:
-                print(f"Converged at iteration {it} to mean prob ~{current_mean:.3f}")
+    def optimize_to_target(self, target_mean: float = 0.7, max_steps: int = 80):
+        """Simple probabilistic optimization loop (tune ensemble toward target)."""
+        for step in range(max_steps):
+            agg = self.evolve_chains()
+            current = agg.mean()
+            if abs(current - target_mean) < 0.003:
+                print(f"Converged after {step} steps | mean prob ≈ {current:.4f}")
                 break
         return self.states
 
-    def visualize_aggregate(self, title: str = "QxBin Cloud Aggregate (Many Cubits)"):
-        """Show mean probability landscape across the ensemble."""
-        agg = self.states.mean(axis=0)
+    def visualize(self, title="QxBin Cloud - Aggregate Probability Landscape"):
+        agg = self.states.mean(0)
         plt.figure(figsize=(8, 6))
-        plt.imshow(agg, cmap='plasma', interpolation='nearest')
-        plt.colorbar(label='Avg Probability Amplitude')
+        plt.imshow(agg, cmap="plasma", interpolation="nearest")
+        plt.colorbar(label="Average Amplitude")
         plt.title(title)
-        plt.grid(True, alpha=0.2)
+        plt.grid(True, alpha=0.15)
         plt.tight_layout()
         plt.show()
 
 
 if __name__ == "__main__":
-    print("=== QxBin Cloud / Server Simulator ===")
-    qx = QxBinCloud(num_cubits=25, grid_size=7)
-    print(f"Evolving {qx.num_cubits} cubit chains...")
+    print("QxBin Cloud v2 - Scalable Cubit Ensemble")
+    cloud = QxBinCloud(num_cubits=30, grid_size=6)
+    print(f"Evolving {cloud.num_cubits} parallel cubit chains...")
     
-    qx.probabilistic_optimize(target=0.72)
-    qx.visualize_aggregate()
+    cloud.optimize_to_target(target_mean=0.68)
+    cloud.visualize()
     
-    print("\nDone. Ensemble mean probability matrix ready for downstream use.")
+    print("\nDone. Ensemble ready.")

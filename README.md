@@ -1,70 +1,79 @@
-# QxBin Logic Implementations
+# QxBin Logic Implementations (v2)
 
-**By Rupesh Malpani** | pikk.company | [QxBin Framework](https://www.pikk.co.in/chain-test)
+**By Rupesh Malpani** | pikk.company
 
-Democratizing quantum-inspired computing at room temperature on classical hardware.
+**QxBin** — Room-temperature personal cubit simulation on classical hardware.
 
-QxBin replaces flat binary (0s/1s) with **Binary Probability Matrices** — grids of fractional probabilities, exponents for directed contributions, and multi-dimensional chains that simulate superposition like a spinning coin before it lands.
+Replaces rigid flat binary with **Binary Probability Matrices**: spatial grids of fractional probabilities. Uses ratios and positive/negative exponents (n, m) to encode "directed contributions" and simulate superposition (the coin still spinning).
 
-Inspired by coin tosses, punch cards, magnetic Hall sensors, and everyday analog nuance. No cryogenics. No million-dollar labs. Just math + code you can run on your laptop or scale in the cloud.
+No cryogenics. No massive labs. Just Python you can run on a laptop or scale in the cloud. Democratizing quantum-inspired logic for everyone.
 
-> "Moving past the cooling barrier isn't about better hardware. We just have to change the mathematical language we use to talk to the computer." — QxBin
+## What's New in v2
+- Tighter integration of fractional exponents and coordinate-style probability construction
+- More stable evolution and normalization in both tiers
+- Clearer mapping to QxBin concepts (probability matrix, coin-toss chains, analog nuance)
+- Better comments and extensibility
 
-## Two Tiers, Two Use Cases
+## Tier 1: Edge / Desktop (`qxbin_edge.py`)
+Personal simulator for learning, prototyping, edge devices, uncertain decision systems.
 
-### 1. Edge / Desktop Tier (`qxbin_edge.py`)
-Personal cubit simulator for devs, students, edge AI, probabilistic decision-making.
-- Runs anywhere with Python
-- Analog-style inputs (bias, fractions)
-- Beautiful grid visualizations with probability nodes
-- Fast iteration for learning & prototyping
+Features:
+- Binary Probability Matrix (grid)
+- apply_superposition with bias + n/m powers
+- Probabilistic measurement (collapse)
+- Visualization with node clusters (inspired by the colorful grid/sphere visuals)
 
-**Run it:**
+**Quick start**
 ```bash
 pip install -r requirements.txt
 python qxbin_edge.py
 ```
 
-### 2. Cloud / Server Tier (`qxbin_cloud.py`)
-Scalable batch simulations for optimization, Monte Carlo, hybrid quantum-classical workloads.
-- Parallel evolution of many cubit chains (Numba accelerated)
-- Probabilistic optimization loops
-- Aggregate visualization across "cubit" ensembles
-- Ready for GPU extension (CuPy) or bigger clusters
+## Tier 2: Cloud / Server (`qxbin_cloud.py`)
+Scalable ensemble of many cubit chains.
 
-**Run it:**
+Features:
+- Numba-parallel evolution of probability matrices
+- Feedback optimization loop
+- Aggregate visualization
+- Easy to GPU-accelerate or distribute
+
+**Quick start**
 ```bash
 pip install -r requirements.txt
 python qxbin_cloud.py
 ```
 
-## Core QxBin Concepts in Code
-- **Probability Matrix**: 2D grid instead of linear bits
-- **Fractions + Exponents**: `bias ** power_n` for leaning superpositions
-- **Superposition Blend**: Combine current state with new probabilistic input
-- **Measurement**: Probabilistic collapse to classical outcome
-- **Chains**: Multiple independent or interacting "cubit" states evolved in parallel
+## Core QxBin Math in These Implementations
+- **Fractional states**: Instead of 0 or 1, we use continuous probabilities (bias ** power)
+- **Exponents n & m**: Control the "lean" and direction of contributions in the coordinate system
+- **Probability Matrix**: 2D grid representing multi-dimensional state (punch-card analog)
+- **Superposition blend**: Combine current matrix with new probabilistic input
+- **Chain evolution**: Parallel update across many independent or interacting cubits
+- **Measurement**: Weighted random collapse, preserving probability interpretation
 
-## Extension Ideas (First Principles)
-- Real hardware: Hook Hall-effect sensors or pressure-sensitive keyboard for analog input
-- Punch-card physical prototype: Map matrix to LED grid or magnetic paper
-- GPU shaders: Port matrix ops to CUDA for massive parallelism
-- Error correction: Add simple repetition or parity across chains
-- Integration: Feed into Qiskit for hybrid classical-quantum workflows
-- MoodBin: Emotional probability clouds (see @rupeshmalpani posts)
+## Extension Roadmap (First Principles)
+1. Analog input stub: Simulate or connect Hall-effect sensor / pressure data as bias input
+2. Physical prototype: Map matrix to LED grid or magnet array + punch card
+3. q-binomial / lattice path component: Add explicit chain counting or binomial coefficients
+4. Simple "entanglement": Correlate two matrices via shared factors
+5. GPU version: Port matrix ops to CuPy / CUDA
+6. Hybrid: Bridge to Qiskit for real quantum backend testing
+7. MoodBin: Emotional probability clouds on top of the same grid
 
-## Why This Matters
-Traditional quantum needs dilution refrigerators and PhD teams.
-QxBin puts **personal qubit simulation** on every desk — students, founders, edge devices in emerging markets.
+## Why QxBin Matters
+Traditional quantum computing is locked behind expensive, complex infrastructure.
+QxBin brings the **thinking** — superposition, probability amplitudes, multi-state logic — to room temperature classical machines.
 
-This is how we accelerate progress: make the advanced accessible, testable, and iterable today.
+Students, founders, edge developers, and micro-enterprises can now experiment, prototype, and build with it today.
 
-Ship it. Iterate in public. First principles.
+This is acceleration through accessibility.
 
-## Links
-- QxBin Framework: https://www.pikk.co.in/chain-test
-- Videos: Search "QxBin Rupesh Malpani" on YouTube
-- X: [@rupeshmalpani](https://x.com/rupeshmalpani)
-- pikk.company | tobrand.biz
+Fork. Extend. Ship. Iterate in public.
+
+## Links & Context
+- Framework details & visuals: https://www.pikk.co.in/chain-test
+- YouTube explanations (Rupesh Malpani / pikk.company)
+- X: @rupeshmalpani
 
 MIT License | 2026
