@@ -2,6 +2,10 @@
 
 **By Rupesh Malpani** | pikk.company | QxBin Framework
 
+**🚀 Official Default License for All QxBin Work**
+
+This refined custom MIT license is the **default standard** for every QxBin project, kernel, edge implementation, enhancement, simulation, and future work by Rupesh Malpani / pikk.company.
+
 **QxBin** — Room-temperature personal cubit simulation on classical hardware.
 
 Replaces rigid flat binary with **Binary Probability Matrices**: spatial grids of fractional probabilities. Uses ratios and positive/negative exponents (n, m) to encode "directed contributions" and simulate superposition (the coin still spinning).
