@@ -1,61 +1,60 @@
 # QxBin CUDA / GPU Port
 
-**Status**: v1 (CuPy Python) + Native CUDA C++ kernel shipped (June 2026)
+**Status**: Full stack shipped — CuPy Python + Native CUDA C++ kernel + Python bindings (June 2026)
 
-This fulfills and extends roadmap item #3: **GPU / CUDA port**.
+This fulfills roadmap item #3 and goes further: we now have a complete, layered GPU implementation of QxBin.
 
-## What we have now
+## Current stack (pick what you need)
 
-### 1. `qxbin_cuda.py` (CuPy)
-- High-level, drop-in replacement for `QxBinCloud`
-- Same exact fractional exponent logic (`bias**n`, `(1-bias)**m`, blend, normalize)
-- Runs entirely on GPU via CuPy broadcasting
-- Excellent for rapid prototyping, visualization, integration with existing Python code
-- Great performance for most use cases (1024+ cubits in real time)
+| Layer                  | File                    | When to use                              | Performance     | Ease of use |
+|------------------------|-------------------------|------------------------------------------|-----------------|-------------|
+| **Python (high-level)**| `qxbin_cuda.py`        | Prototyping, viz, quick experiments     | Very good       | Excellent   |
+| **Native CUDA kernel** | `qxbin_cuda.cu`        | Maximum speed, production, custom work  | Best            | Medium      |
+| **Python bindings**    | `qxbin_cuda_pybind.cpp` + `setup.py` | Best of both worlds (speed + Python)   | Excellent       | Excellent   |
 
-### 2. `qxbin_cuda.cu` (Native CUDA C++)
-- Zero Python overhead
-- One block per cubit, cooperative threads + warp shuffle reduction
-- Same mathematical core as the Python versions
-- Standalone compilable demo (`nvcc ... && ./qxbin_cuda`)
-- Foundation for production kernels, multi-GPU, and custom bindings
+All three layers use the **exact same QxBin fractional superposition math**.
 
-Both versions use the **exact same QxBin math** that makes the "spinning coin" superposition work on classical hardware.
+## Quick start (recommended path)
 
-## Quick start
-
-### CuPy version (recommended first)
+### 1. High-level CuPy (fastest to try)
 ```bash
-pip install cupy-cuda12x   # match your CUDA version
+pip install cupy-cuda12x
 python qxbin_cuda.py
 ```
 
-### Native kernel
+### 2. Native + Python bindings (recommended for real work)
 ```bash
-nvcc -o qxbin_cuda qxbin_cuda.cu -arch=sm_80   # change arch to your GPU
-./qxbin_cuda
+pip install pybind11 numpy
+
+# Build the binding
+python setup.py build_ext --inplace
+
+# Or manual compile if you prefer
+c++ -O3 -shared -std=c++17 -fPIC $(python3 -m pybind11 --includes) \
+    qxbin_cuda_pybind.cpp -o qxbin_cuda$(python3-config --extension-suffix) \
+    -L/usr/local/cuda/lib64 -lcudart
+
+python -c "from qxbin_cuda import QxBinNative; qx = QxBinNative(1024, 8); print(qx); qx.optimize_to_target(0.72)"
 ```
 
-## Why this compounds (diabolical optimism)
+## What this unlocks right now
 
-We turned a beautiful mathematical hack (Binary Probability Matrices + fractional states) into something that runs at full GPU throughput *today*.
+- Run 1024+ evolving cubit ensembles at interactive speeds on a single GPU
+- Use the same probabilistic logic in edge, cloud, or research workflows
+- Foundation for QxGrok-style probabilistic MoE, uncertainty-aware systems, and quantum-inspired optimization
+- Clean path to future hybrid Qiskit + native CUDA workflows
 
-No waiting for logical qubits. No cryogenics. Just clever representation + modern parallel silicon.
+## Next (pick your priority)
 
-This is how we democratize quantum-inspired computing:
-- Personal labs on every developer machine
-- Edge + cloud scale for Pikk-style systems
-- Foundation for richer probabilistic AI (QxGrok direction)
+- Auto backend selection (unified `QxBin` class that picks best available)
+- Benchmarks & scaling curves
+- Multi-GPU support
+- Qiskit / CUDA-Q bridge
+- Integration with Pikk edge infrastructure
+- Analog input (Hall-effect sensors) prototype
 
-## Immediate next steps
+We are shipping fast because the math is solid and the hardware is already here.
 
-- Python bindings for the native kernel (pybind11 or nanobind)
-- Make `QxBinCloud` / `QxBinCUDA` auto-select best backend
-- Benchmarks + scaling curves (CPU vs CuPy vs native)
-- Multi-GPU support (simple device partitioning)
-- Qiskit / CUDA-Q hybrid bridge
-- Integration with analog input roadmap item (Hall sensors)
-
-Fork. Extend. Ship.
+Fork it. Extend it. Ship faster.
 
 — Rupesh Malpani | pikk.company | QxBin framework
