@@ -1,39 +1,61 @@
-# QxBin CUDA / GPU Port v1
+# QxBin CUDA / GPU Port
 
-**Status**: Implemented and pushed (June 2026)
+**Status**: v1 (CuPy Python) + Native CUDA C++ kernel shipped (June 2026)
 
-This fulfills roadmap item #3: **GPU / CUDA port**.
+This fulfills and extends roadmap item #3: **GPU / CUDA port**.
 
-## What was added
-- `qxbin_cuda.py`: Full CuPy implementation of the ensemble evolution logic.
-- Same core math as `qxbin_cloud.py` (fractional exponents `bias**n` / `(1-bias)**m`, blend, per-matrix normalize).
-- Runs entirely on NVIDIA GPU → 10-100x+ faster for large ensembles (1024+ cubits demonstrated).
-- Drop-in style API (`evolve_chains`, `optimize_to_target`, `visualize`).
+## What we have now
+
+### 1. `qxbin_cuda.py` (CuPy)
+- High-level, drop-in replacement for `QxBinCloud`
+- Same exact fractional exponent logic (`bias**n`, `(1-bias)**m`, blend, normalize)
+- Runs entirely on GPU via CuPy broadcasting
+- Excellent for rapid prototyping, visualization, integration with existing Python code
+- Great performance for most use cases (1024+ cubits in real time)
+
+### 2. `qxbin_cuda.cu` (Native CUDA C++)
+- Zero Python overhead
+- One block per cubit, cooperative threads + warp shuffle reduction
+- Same mathematical core as the Python versions
+- Standalone compilable demo (`nvcc ... && ./qxbin_cuda`)
+- Foundation for production kernels, multi-GPU, and custom bindings
+
+Both versions use the **exact same QxBin math** that makes the "spinning coin" superposition work on classical hardware.
 
 ## Quick start
-```bash
-pip install cupy-cuda12x   # or cupy-cuda11x matching your driver
-# or
-conda install -c conda-forge cupy
 
+### CuPy version (recommended first)
+```bash
+pip install cupy-cuda12x   # match your CUDA version
 python qxbin_cuda.py
 ```
 
-## Why this matters (diabolical optimism edition)
-We didn't wait for perfect logical qubits or cryogenic hardware.
-We changed the representation (Binary Probability Matrices + fractional superposition) so that **today's GPUs** can run rich, spinning-coin style probabilistic simulations at scale.
+### Native kernel
+```bash
+nvcc -o qxbin_cuda qxbin_cuda.cu -arch=sm_80   # change arch to your GPU
+./qxbin_cuda
+```
 
-This is the bridge:
-- Personal / edge quantum-inspired computing today
-- Massive ensembles for optimization, uncertainty modeling, quantum-inspired ML
-- Foundation for future native CUDA kernels + hybrid Qiskit workflows
+## Why this compounds (diabolical optimism)
 
-## Next steps (roadmap continuation)
-1. Analog input (Hall-effect sensors) + physical magnet grid prototype
-2. Native CUDA C++ kernels (`qxbin_cuda.cu`) with Python bindings for zero-Python overhead
-3. Qiskit / CUDA-Q hybrid bridge
-4. Integration into Pikk ecosystem (edge nodes, decision systems, Grok-enhanced models)
+We turned a beautiful mathematical hack (Binary Probability Matrices + fractional states) into something that runs at full GPU throughput *today*.
 
-Fork it. Extend it. Ship faster.
+No waiting for logical qubits. No cryogenics. Just clever representation + modern parallel silicon.
+
+This is how we democratize quantum-inspired computing:
+- Personal labs on every developer machine
+- Edge + cloud scale for Pikk-style systems
+- Foundation for richer probabilistic AI (QxGrok direction)
+
+## Immediate next steps
+
+- Python bindings for the native kernel (pybind11 or nanobind)
+- Make `QxBinCloud` / `QxBinCUDA` auto-select best backend
+- Benchmarks + scaling curves (CPU vs CuPy vs native)
+- Multi-GPU support (simple device partitioning)
+- Qiskit / CUDA-Q hybrid bridge
+- Integration with analog input roadmap item (Hall sensors)
+
+Fork. Extend. Ship.
 
 — Rupesh Malpani | pikk.company | QxBin framework
